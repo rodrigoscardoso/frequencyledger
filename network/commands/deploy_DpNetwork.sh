@@ -87,7 +87,7 @@ function createChannel(){
 
 	setGlobals 1 0
 
-    peer channel create -o orderer.policiamilitar.sp.gov.br:7050 -c channeldp -f ./channel-artifacts/channel.tx --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem
+    peer channel create -o orderer.policiamilitar.sp.gov.br:7050 -t 180s -c channeldp -f ./channel-artifacts/channel.tx --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem
 	
 	echo ""
 	echo "CANAL CRIADO!"
@@ -176,7 +176,7 @@ function updateProvider(){
 
 	setGlobals 1 0
 
-	peer channel update -o orderer.policiamilitar.sp.gov.br:7050 -c channeldp -f ./channel-artifacts/ProviderMSPanchors.tx --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem
+	peer channel update --connTimeout 180s -o orderer.policiamilitar.sp.gov.br:7050 -c channeldp -f ./channel-artifacts/ProviderMSPanchors.tx --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem
 
 	updateConsumer
 
@@ -188,7 +188,7 @@ function updateConsumer(){
 
 	setGlobals 2 0
 
-	peer channel update -o orderer.policiamilitar.sp.gov.br:7050 -c channeldp -f ./channel-artifacts/ConsumerMSPanchors.tx --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem
+	peer channel update --connTimeout 180s -o orderer.policiamilitar.sp.gov.br:7050 -c channeldp -f ./channel-artifacts/ConsumerMSPanchors.tx --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem
 
 	installChaincodeProvider
 }
@@ -199,13 +199,13 @@ function installChaincodeProvider(){
 
 	setGlobals 1 0
 
-	peer chaincode install -n controlediario -v 1.0.3 -l node -p /opt/gopath/src/github.com/chaincode/controlediario
+	peer chaincode install --connTimeout 180s -n controlediario -v 1.0.3 -l node -p /opt/gopath/src/github.com/chaincode/controlediario
 
 	echo "INSTALL CHAINCODE PROVIDER - PEER 1"
 
 	setGlobals 1 1
 
-	peer chaincode install -n controlediario -v 1.0.3 -l node -p /opt/gopath/src/github.com/chaincode/controlediario
+	peer chaincode install --connTimeout 180s -n controlediario -v 1.0.3 -l node -p /opt/gopath/src/github.com/chaincode/controlediario
 
 	installChaincodeConsumer
 
@@ -217,13 +217,13 @@ function installChaincodeConsumer(){
 
 	setGlobals 2 0
 
-	peer chaincode install -n controlediario -v 1.0.3 -l node -p /opt/gopath/src/github.com/chaincode/controlediario
+	peer chaincode install --connTimeout 180s -n controlediario -v 1.0.3 -l node -p /opt/gopath/src/github.com/chaincode/controlediario
 
 	echo "INSTALL CHAINCODE CONSUMER - PEER 1"
 
 	setGlobals 2 1
 
-	peer chaincode install -n controlediario -v 1.0.3 -l node -p /opt/gopath/src/github.com/chaincode/controlediario
+	peer chaincode install --connTimeout 180s -n controlediario -v 1.0.3 -l node -p /opt/gopath/src/github.com/chaincode/controlediario
 
 	peer chaincode list --installed
 
@@ -232,21 +232,63 @@ function installChaincodeConsumer(){
 }
 
 function instanceChaincodeProvider(){
+	
+	echo "INSTANTIANTING CHAINCODE PROVIDER -- 1 minuto"
 
-	echo "INSTANTIANTING CHAINCODE PROVIDER"
+	sleep 30s
 
 	setGlobals 1 0
 
-	peer chaincode instantiate -o orderer.policiamilitar.sp.gov.br:7050 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem -C channeldp -n controlediario -v 1.0.3 -l node -c '{"Args":[]}' -P "OR ('ProviderMSP.peer','ConsumerMSP.peer')"
+	peer chaincode instantiate --connTimeout 180s -o orderer.policiamilitar.sp.gov.br:7050 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem -C channeldp -n controlediario -v 1.0.3 -l node -c '{"Args":[]}'
 
+
+	echo "----->###################"
+	
 	peer chaincode list --instantiated -C channeldp
-
+	echo ""
+	echo ""
+	echo "----->###################"
+	
 	res=$?
 	
 	verifyResult $res
 
 	invokeChaincodeProvider
 }
+
+function invokeChaincodeProvider(){
+
+	echo "INVOKE CHAINCODE PROVIDER"
+	
+	setGlobals 2 1
+	echo "#"
+	sleep 
+	echo "#"
+	sleep 3
+	echo "#"
+	sleep 3
+	echo "#"
+	sleep 3
+	echo "#"
+	sleep 3
+
+	peer chaincode invoke -o orderer.policiamilitar.sp.gov.br:7050  --tls true --cafile $ORDERER_CA -C channeldp -n controlediario -c '{"Args":["31091284890", "RODRIGO CARDOSO", "PMESP", "DP", "SETOR", "DESENV WEB", "CHEFE", "ARQUITETO DE SOFTWARES", "9:00", "18:00", "01/01/2020", "01/01/2020", "ATIVO", "TRUE", "1234556789", "TRUE", "987654321", "VALIDADO" ], "Function":"registrarDia"}'
+
+	res=$?
+	
+	verifyResult $res
+	echo "# CHAMANDO O CPF 31091284890 PARA TESTAR"
+	queryChaincodeProvider
+
+	echo
+	echo " _____   _   _   ____   "
+	echo "| ____| | \ | | |  _ \  "
+	echo "|  _|   |  \| | | | | | "
+	echo "| |___  | |\  | | |_| | "
+	echo "|_____| |_| \_| |____/  "
+	echo
+}
+
 
 function queryChaincodeProvider(){
 
@@ -260,37 +302,6 @@ function queryChaincodeProvider(){
 	
 	verifyResult $res
 
-}
-
-function invokeChaincodeProvider(){
-
-	echo "INVOKE CHAINCODE PROVIDER"
-	
-	setGlobals 2 1
-	echo "#"
-	sleep 
-	echo "#"
-	sleep 1
-	echo "#"
-	sleep 1
-	echo "#"
-	sleep 1
-	echo "#"
-	sleep 1
-
-	peer chaincode invoke -o orderer.policiamilitar.sp.gov.br:7050  --tls true --cafile $ORDERER_CA -C channeldp -n controlediario -c '{"Args":["31091284890", "RODRIGO CARDOSO", "PMESP", "DP", "SETOR", "DESENV WEB", "CHEFE", "ARQUITETO DE SOFTWARES", "9:00", "18:00", "01/01/2020", "01/01/2020", "ATIVO", "TRUE", "1234556789", "TRUE", "987654321", "VALIDADO" ], "Function":"registrarDia"}'
-
-	res=$?
-	
-	verifyResult $res
-
-	echo
-	echo " _____   _   _   ____   "
-	echo "| ____| | \ | | |  _ \  "
-	echo "|  _|   |  \| | | | | | "
-	echo "| |___  | |\  | | |_| | "
-	echo "|_____| |_| \_| |____/  "
-	echo
 }
 
 function deploy_run_explorer(){
@@ -313,7 +324,7 @@ function deploy_run_explorer(){
 function main(){
 	banner
     #Pass arguments to function exactly as-is
-    config "$@"
+    #config "$@"
 
 	MODE=$1;
     if [ "$MODE" == "--down" ]; then

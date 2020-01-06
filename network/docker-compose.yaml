@@ -7,11 +7,8 @@ volumes:
   peer1.provider.policiamilitar.sp.gov.br:
   peer0.consumer.policiamilitar.sp.gov.br:
   peer1.consumer.policiamilitar.sp.gov.br:
-  ca.consumer.policiamilitar.sp.gov.br:
-  ca.provider.policiamilitar.sp.gov.br:
-  zookeeper.policiamilitar.sp.gov.br:
-  kafka.policiamilitar.sp.gov.br:
   orderer.policiamilitar.sp.gov.br:
+  orderer1.policiamilitar.sp.gov.br:
 
 networks:
   dpNetwork:
@@ -20,53 +17,41 @@ networks:
       
 services:
   orderer.policiamilitar.sp.gov.br:
+    extends:
+      file: docker-compose-base.yaml
+      service: orderer.policiamilitar.sp.gov.br
     container_name: orderer.policiamilitar.sp.gov.br
-    image: hyperledger/fabric-orderer:latest
-    environment:
-      - FABRIC_LOGGING_SPEC=INFO
-      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
-      - ORDERER_GENERAL_GENESISMETHOD=file
-      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
-      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
-      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
-      # enabled TLS
-      - ORDERER_GENERAL_TLS_ENABLED=true
-      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
-      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
-      - ORDERER_GENERAL_TLS_ROOTCAS=/var/hyperledger/orderer/tls/ca.crt
-      - ORDERER_KAFKA_TOPIC_REPLICATIONFACTOR=1
-      - ORDERER_KAFKA_VERBOSE=true
-      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
-      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
-      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
-    command: orderer
-    volumes:
-    - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-    - ./crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp:/var/hyperledger/orderer/msp
-    - ./crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/tls/:/var/hyperledger/orderer/tls
-    - orderer.policiamilitar.sp.gov.br:/var/hyperledger/production/orderer
-    ports:
-      - 7050:7050
     networks:
       - dpNetwork
-  
+      
+  orderer1.policiamilitar.sp.gov.br:
+    extends:
+      file: docker-compose-base.yaml
+      service: orderer1.policiamilitar.sp.gov.br
+    container_name: orderer1.policiamilitar.sp.gov.br
+    networks:
+      - dpNetwork   
+      
   peer0.provider.policiamilitar.sp.gov.br:
     container_name: peer0.provider.policiamilitar.sp.gov.br
     extends:
       file: peer-base.yaml
       service: peer-base
-    environment:
+    hostname: peer0.provider.policiamilitar.sp.gov.br
+    environment: 
       - CORE_PEER_ID=peer0.provider.policiamilitar.sp.gov.br
       - CORE_PEER_ADDRESS=peer0.provider.policiamilitar.sp.gov.br:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
       - CORE_PEER_CHAINCODEADDRESS=peer0.provider.policiamilitar.sp.gov.br:7052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.provider.policiamilitar.sp.gov.br:8051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.provider.policiamilitar.sp.gov.br:7051
       - CORE_PEER_LOCALMSPID=ProviderMSP
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=192.168.1.33:5984
+      ###############
+      - CORE_PEER_GOSSIP_ENDPOINT=peer0.provider.policiamilitar.sp.gov.br:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.provider.policiamilitar.sp.gov.br:8051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.provider.policiamilitar.sp.gov.br:7051
+      ##############
       # The CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME and CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD
       # provide the credentials for ledger to connect to CouchDB.  The username and password must
       # match the username and password set for the associated CouchDB.
@@ -89,17 +74,21 @@ services:
     extends:
       file: peer-base.yaml
       service: peer-base
-    environment:
+    hostname: peer1.provider.policiamilitar.sp.gov.br
+    environment: 
       - CORE_PEER_ID=peer1.provider.policiamilitar.sp.gov.br
       - CORE_PEER_ADDRESS=peer1.provider.policiamilitar.sp.gov.br:7051
-      - CORE_PEER_GOSSIP_EXTERNAL_ENDPOINT=peer1.provider.policiamilitar.sp.gov.br:7051
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.provider.policiamilitar.sp.gov.br:7051
       - CORE_PEER_LOCALMSPID=ProviderMSP
-      - CORE_PEER_CHAINCODEADDRESS=peer1.provider.policiamilitar.sp.gov.br:8052
-      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_CHAINCODEADDRESS=peer1.provider.policiamilitar.sp.gov.br:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=192.168.1.33:6984
+      ##################
+      - CORE_PEER_GOSSIP_ENDPOINT=peer1.provider.policiamilitar.sp.gov.br:8051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.provider.policiamilitar.sp.gov.br:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.provider.policiamilitar.sp.gov.br:8051
+      #######
       # The CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME and CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD
       # provide the credentials for ledger to connect to CouchDB.  The username and password must
       # match the username and password set for the associated CouchDB.
@@ -122,17 +111,21 @@ services:
     extends:
       file: peer-base.yaml
       service: peer-base
+    hostname: peer0.consumer.policiamilitar.sp.gov.br
     environment:
       - CORE_PEER_ID=peer0.consumer.policiamilitar.sp.gov.br
-      - CORE_PEER_ADDRESS=peer0.consumer.policiamilitar.sp.gov.br:9051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.consumer.policiamilitar.sp.gov.br:9051
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.consumer.policiamilitar.sp.gov.br:10051
+      - CORE_PEER_ADDRESS=peer0.consumer.policiamilitar.sp.gov.br:7051
       - CORE_PEER_LOCALMSPID=ConsumerMSP
-      - CORE_PEER_CHAINCODEADDRESS=peer0.consumer.policiamilitar.sp.gov.br:9052
-      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_CHAINCODEADDRESS=peer0.consumer.policiamilitar.sp.gov.br:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=192.168.1.33:7984
+      ##################
+      - CORE_PEER_GOSSIP_ENDPOINT=peer0.consumer.policiamilitar.sp.gov.br:9051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.consumer.policiamilitar.sp.gov.br:10051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.consumer.policiamilitar.sp.gov.br:9051
+      #######
       # The CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME and CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD
       # provide the credentials for ledger to connect to CouchDB.  The username and password must
       # match the username and password set for the associated CouchDB.
@@ -155,17 +148,21 @@ services:
     extends:
       file: peer-base.yaml
       service: peer-base
+    hostname: peer1.consumer.policiamilitar.sp.gov.br
     environment:
       - CORE_PEER_ID=peer1.consumer.policiamilitar.sp.gov.br
-      - CORE_PEER_ADDRESS=peer1.consumer.policiamilitar.sp.gov.br:10051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.consumer.policiamilitar.sp.gov.br:10051
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.consumer.policiamilitar.sp.gov.br:9051
+      - CORE_PEER_ADDRESS=peer1.consumer.policiamilitar.sp.gov.br:7051
       - CORE_PEER_LOCALMSPID=ConsumerMSP
-      - CORE_PEER_CHAINCODEADDRESS=peer1.consumer.policiamilitar.sp.gov.br:9052
-      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_CHAINCODEADDRESS=peer1.consumer.policiamilitar.sp.gov.br:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=192.168.1.33:8984
+      ##################
+      - CORE_PEER_GOSSIP_ENDPOINT=peer1.consumer.policiamilitar.sp.gov.br:10051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.consumer.policiamilitar.sp.gov.br:9051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.consumer.policiamilitar.sp.gov.br:10051
+      #######
       # The CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME and CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD
       # provide the credentials for ledger to connect to CouchDB.  The username and password must
       # match the username and password set for the associated CouchDB.
@@ -186,7 +183,7 @@ services:
 
   cli:
     container_name: cli
-    image: hyperledger/fabric-tools:latest
+    image: hyperledger/fabric-tools:1.4
     tty: true
     stdin_open: true
     environment:
@@ -203,6 +200,7 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/peerOrganizations/provider.policiamilitar.sp.gov.br/peers/peer0.provider.policiamilitar.sp.gov.br/tls/ca.crt
       - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/peerOrganizations/provider.policiamilitar.sp.gov.br/users/Admin@provider.policiamilitar.sp.gov.br/msp
       - ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem
+      - ORDERER1_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer1.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash
     volumes:
@@ -219,42 +217,10 @@ services:
       - peer1.consumer.policiamilitar.sp.gov.br
     networks:
       - dpNetwork
-
-  zookeeper.policiamilitar.sp.gov.br:
-    container_name: zookeeper.policiamilitar.sp.gov.br
-    image: hyperledger/fabric-zookeeper:latest
-    environment:  
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
-    networks:
-    - dpNetwork
-
-  kafka.policiamilitar.sp.gov.br:
-    container_name: kafka.policiamilitar.sp.gov.br
-    image: hyperledger/fabric-kafka:latest
-    depends_on:
-    - zookeeper.policiamilitar.sp.gov.br
-    environment:
-      - KAFKA_BROKER_ID=1
-      - KAFKA_ZOOKEEPER_CONNECT=192.168.1.33:2181
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://192.168.1.33:9092
-      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
-      - KAFKA_MESSAGE_MAX_BYTES=103809024 # 1 * 1024 * 1024 B
-      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024 # 1 * 1024 * 1024 B
-      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
-      - KAFKA_LOG_RETENTION_MS=-1
-      - KAFKA_MIN_INSYNC_REPLICAS=1
-      - KAFKA_DEFAULT_REPLICATION_FACTOR=1
-    ports:
-    - "9092:9092"
-    networks:
-    - dpNetwork
     
   couchdb0:
     container_name: couchdb0
-    image: hyperledger/fabric-couchdb
+    image: hyperledger/fabric-couchdb:0.4.18
     # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
     # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
     environment:
@@ -269,7 +235,7 @@ services:
 
   couchdb1:
     container_name: couchdb1
-    image: hyperledger/fabric-couchdb
+    image: hyperledger/fabric-couchdb:0.4.18
     # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
     # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
     environment:
@@ -284,7 +250,7 @@ services:
 
   couchdb2:
     container_name: couchdb2
-    image: hyperledger/fabric-couchdb
+    image: hyperledger/fabric-couchdb:0.4.18
     # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
     # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
     environment:
@@ -299,7 +265,7 @@ services:
 
   couchdb3:
     container_name: couchdb3
-    image: hyperledger/fabric-couchdb
+    image: hyperledger/fabric-couchdb:0.4.18
     # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
     # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
     environment:
@@ -311,3 +277,38 @@ services:
       - "8984:5984"
     networks:
       - dpNetwork
+
+  zookeeper0.policiamilitar.sp.gov.br:
+    image: hyperledger/fabric-zookeeper:0.4.18
+    container_name: zookeeper0.policiamilitar.sp.gov.br
+    restart: always
+    hostname: zookeeper0.policiamilitar.sp.gov.br
+    environment:  
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - dpNetwork       
+
+  kafka0.policiamilitar.sp.gov.br:
+    image: hyperledger/fabric-kafka:0.4.18
+    container_name: kafka0.policiamilitar.sp.gov.br
+    hostname: kafka0.policiamilitar.sp.gov.br
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_MESSAGE_MAX_BYTES=103809024
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+      - KAFKA_MIN_INSYNC_REPLICAS=1
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=1
+      - KAFKA_ZOOKEEPER_CONNECT=192.168.1.33:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://192.168.1.33:9092
+    ports:
+      - 9092:9092
+      - 9093:9093
+    networks:
+      - dpNetwork         
+    depends_on:
+      - zookeeper0.policiamilitar.sp.gov.br
+     
