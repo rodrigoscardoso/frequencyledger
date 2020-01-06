@@ -1,0 +1,21 @@
+{
+  "name": "controlediario",
+  "version": "1.0.3",
+  "description": "Controle Diario",
+  "main": "controlediario.js",
+  "scripts": {
+    "start": "node controlediario.js"
+  },
+  "keywords": [
+    "controlediario",
+    "chaincode",
+    "nodejs",
+    "hyperledger",
+    "fabric"
+  ],
+  "author": "rmorbach",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "fabric-shim": "^1.4.0"
+  }
+}

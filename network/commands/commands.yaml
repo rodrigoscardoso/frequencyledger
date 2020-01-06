@@ -1,0 +1,174 @@
+ # docker stop $(docker ps -aq)
+ # docker kill $(docker ps -q)
+ # docker rm $(docker ps -aq)
+ # docker rmi $(docker images dev-* -q)
+ # docker rm $(docker ps -aq)
+ # docker volume prune
+ # docker network inspect network_dpNetwork | jq ".[].Containers[].Name" | sort
+ # docker-compose down -v
+ # docker exec explorer.mynetwork.com ping -c 1 peer0.org1.example.com 
+
+SUBCOMMANDS: 
+  TLS: --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+
+
+##############################################
+1111111111111111111111111111111111111111111111
+##############################################
+
+
+TOPOLOGY:
+# ../bin/configtxgen -profile OrgsOrdererGenesis -outputBlock ./channel-artifacts/genesis.block
+# ../bin/configtxgen -profile OrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID channeldp
+# ../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/ProviderMSPanchors.tx -channelID channeldp -asOrg ProviderMSP
+# ../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/ConsumerMSPanchors.tx -channelID channeldp -asOrg ConsumerMSP
+
+  ../bin/configtxgen -profile OrgsOrdererGenesis -channelID channeldp -outputBlock ./channel-artifacts/genesis.block
+  ../bin/configtxgen -profile DPOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID channeldp
+  ../bin/configtxgen -profile DPOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/ProviderMSPanchors.tx -channelID channeldp -asOrg ProviderMSP
+  ../bin/configtxgen -profile DPOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/ConsumerMSPanchors.tx -channelID channeldp -asOrg ConsumerMSP
+
+##############################################
+2222222222222222222222222222222222222222222222
+##############################################
+
+gerarContainers: docker-compose up -d
+
+acessarContainerCLI: docker exec -it cli bash
+
+##############################################
+3333333333333333333333333333333333333333333333
+##############################################
+
+
+CREATE_CHANNEL: 
+  TLS_TRUE: peer channel create -o orderer.policiamilitar.sp.gov.br:7050 -c channeldp -f ./channel-artifacts/channel.tx --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem
+  TLS_FALSE: peer channel create -o orderer.policiamilitar.sp.gov.br:7050 -c channeldp -f ./channel-artifacts/channel.tx
+
+UPDATE_CHANNEL:
+  TLS_TRUE: peer channel update -o orderer.policiamilitar.sp.gov.br:7050 -c channeldp -f ./channel-artifacts/ProviderMSPanchors.tx --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem
+
+##############################################
+44444444444444444 PROVIDER 4444444444444444444
+##############################################
+
+ENVIRONMENT_PEER_0:
+  export CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/peerOrganizations/provider.policiamilitar.sp.gov.br/users/Admin\@provider.policiamilitar.sp.gov.br/msp/
+  export CORE_PEER_ADDRESS=peer0.provider.policiamilitar.sp.gov.br:7051
+  export CORE_PEER_LOCALMSPID=ProviderMSP
+  export CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/peerOrganizations/provider.policiamilitar.sp.gov.br/peers/peer0.provider.policiamilitar.sp.gov.br/tls/ca.crt 
+COMMAND:
+  peer channel join -b channeldp.block  
+
+
+
+ENVIRONMENT_PEER_1:
+  export CORE_PEER_ADDRESS=peer1.provider.policiamilitar.sp.gov.br:7051
+COMMAND:
+  peer channel join -b channeldp.block
+
+##############################################
+55555555555555555 CONSUMER 5555555555555555555
+##############################################
+
+ENVIRONMENT_PEER_0:
+  export CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/peerOrganizations/consumer.policiamilitar.sp.gov.br/users/Admin@consumer.policiamilitar.sp.gov.br/msp 
+  export CORE_PEER_ADDRESS=peer0.consumer.policiamilitar.sp.gov.br:7051 
+  export CORE_PEER_LOCALMSPID=ConsumerMSP
+  export CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/peerOrganizations/consumer.policiamilitar.sp.gov.br/peers/peer0.consumer.policiamilitar.sp.gov.br/tls/ca.crt 
+COMMAND:
+  peer channel join -b channeldp.block
+
+ENVIRONMENT_PEER_1:
+  export CORE_PEER_ADDRESS=peer1.consumer.policiamilitar.sp.gov.br:7051
+COMMAND:
+  peer channel join -b channeldp.block
+
+
+
+##############################################
+6666666666666 UPDATE PROVIDER 6666666666666666 - Atualizando informações de peer âncora no canal
+##############################################
+
+
+ENVIRONMENT_PEER_0:
+  export CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/peerOrganizations/provider.policiamilitar.sp.gov.br/users/Admin\@provider.policiamilitar.sp.gov.br/msp/
+  export CORE_PEER_ADDRESS=peer0.provider.policiamilitar.sp.gov.br:7051
+  export CORE_PEER_LOCALMSPID=ProviderMSP
+COMMAND:
+  peer channel update -o orderer.policiamilitar.sp.gov.br:7050 -c channeldp -f ./channel-artifacts/ProviderMSPanchors.tx --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem
+
+
+##############################################
+7777777777777 UPDATE CONSUMER 7777777777777777
+##############################################
+
+ENVIRONMENT_PEER_0:
+  export CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/peerOrganizations/consumer.policiamilitar.sp.gov.br/users/Admin\@consumer.policiamilitar.sp.gov.br/msp/
+  export CORE_PEER_ADDRESS=peer0.consumer.policiamilitar.sp.gov.br:7051
+  export CORE_PEER_LOCALMSPID=ConsumerMSP
+  export CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/peerOrganizations/consumer.policiamilitar.sp.gov.br/peers/peer0.consumer.policiamilitar.sp.gov.br/tls/ca.crt
+COMMAND:
+  peer channel update -o orderer.policiamilitar.sp.gov.br:7050 -c channeldp -f ./channel-artifacts/ConsumerMSPanchors.tx --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem
+
+
+
+
+##############################################
+8888888888888 INSTALL CHAINCODE 88888888888888
+##############################################
+
+#################### PROVIDER...
+
+ENVIRONMENT_PROVIDER_PEER_0:
+  export CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/peerOrganizations/provider.policiamilitar.sp.gov.br/users/Admin\@provider.policiamilitar.sp.gov.br/msp/
+  export CORE_PEER_ADDRESS=peer0.provider.policiamilitar.sp.gov.br:7051
+  export CORE_PEER_LOCALMSPID=ProviderMSP
+  export CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/peerOrganizations/provider.policiamilitar.sp.gov.br/peers/peer0.provider.policiamilitar.sp.gov.br/tls/ca.crt
+COMMAND:
+  peer chaincode install -n controlediario -v 1.0.3 -l node -p /opt/gopath/src/github.com/chaincode/controlediario
+
+ENVIRONMENT_PROVIDER_PEER_1:
+  export CORE_PEER_ADDRESS=peer1.provider.policiamilitar.sp.gov.br:7051
+COMMAND:
+  peer chaincode install -n controlediario -v 1.0.3 -l node -p /opt/gopath/src/github.com/chaincode/controlediario
+
+#################### CONSUMER...
+
+ENVIRONMENT_CONSUMER_PEER_0:
+  export CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/peerOrganizations/consumer.policiamilitar.sp.gov.br/users/Admin\@consumer.policiamilitar.sp.gov.br/msp/
+  export CORE_PEER_ADDRESS=peer0.consumer.policiamilitar.sp.gov.br:7051
+  export CORE_PEER_LOCALMSPID=ConsumerMSP
+  export CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/peerOrganizations/consumer.policiamilitar.sp.gov.br/peers/peer0.consumer.policiamilitar.sp.gov.br/tls/ca.crt
+COMMAND:
+  peer chaincode install -n controlediario -v 1.0.3 -l node -p /opt/gopath/src/github.com/chaincode/controlediario
+
+ENVIRONMENT_CONSUMER_PEER_1:
+  export CORE_PEER_ADDRESS=peer1.consumer.policiamilitar.sp.gov.br:7051
+COMMAND: 
+  peer chaincode install -n controlediario -v 1.0.3 -l node -p /opt/gopath/src/github.com/chaincode/controlediario
+
+
+
+##############################################
+999999999999 INSTANCIANDO CHAINCODE 9999999999
+##############################################
+
+ENVIRONMENT:
+  export ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp/tlscacerts/tlsca.policiamilitar.sp.gov.br-cert.pem
+
+COMMAND: 
+  # INSTANCING ...
+  peer chaincode instantiate -o orderer.policiamilitar.sp.gov.br:7050 --tls --cafile $ORDERER_CA -C channeldp -n controlediario -v 1.0.3 -l node -c '{"Args":["31091284890", "RODRIGO CARDOSO", "PMESP", "DP", "SETOR", "DESENV WEB", "CHEFE", "ARQUITETO DE SOFTWARES", "9:00", "18:00", "01/01/2020", "01/01/2020", "ATIVO", "TRUE", "1234556789", "TRUE", "987654321", "VALIDADO" ]}' -P "AND ('ProviderMSP.peer','ConsumerMSP.peer')"
+
+  # UPGRATING ...
+  peer chaincode upgrade -o orderer.policiamilitar.sp.gov.br:7050 --tls --cafile $ORDERER_CA -C channeldp -n controlediario -v 1.0.3 -c '{"Args":["31091284890", "RODRIGO CARDOSO", "PMESP", "DP", "SETOR", "DESENV WEB", "CHEFE", "ARQUITETO DE SOFTWARES", "9:00", "18:00", "01/01/2020", "01/01/2020", "ATIVO", "TRUE", "1234556789", "TRUE", "987654321", "VALIDADO" ], "Function":"registrarDia"}' -P "AND ('ProviderMSP.peer','ConsumerMSP.peer')"
+
+   # INVOKING ...
+  peer chaincode invoke -o orderer.policiamilitar.sp.gov.br:7050  --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C channeldp -n controlediario -c '{"Args":[]}'
+  peer chaincode invoke -o orderer.policiamilitar.sp.gov.br:7050  --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C channeldp -n controlediario -c '{"Args":["31091284890", "RODRIGO CARDOSO", "PMESP", "DP", "SETOR", "DESENV WEB", "CHEFE", "ARQUITETO DE SOFTWARES", "9:00", "18:00", "01/01/2020", "01/01/2020", "ATIVO", "TRUE", "1234556789", "TRUE", "987654321", "VALIDADO" ], "Function":"registrarDia"}'
+  
+  # QUERING ...
+  peer chaincode query -n controlediario -c '{"Args":["31091284890"], "Function":"getPessoa"}' -C channeldp
+
+  peer chaincode query -C channeldp -n controlediario -c '{"Args":["query","a"]}'

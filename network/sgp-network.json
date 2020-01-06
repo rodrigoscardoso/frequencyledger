@@ -1,0 +1,113 @@
+{
+	"name": "sgp-network",
+	"version": "1.0.0",
+	"license": "Apache-2.0",
+	"client": {
+		"tlsEnable": true,
+		"adminUser": "admin",
+		"adminPassword": "adminpw",
+		"enableAuthentication": false,
+		"organization": "ProviderMSP",
+		"connection": {
+			"timeout": {
+				"peer": {
+					"endorser": "300"
+				},
+				"orderer": "300"
+			}
+		}
+	},
+	"channels": {
+		"channeldp": {
+			"peers": {
+				"peer0.provider.policiamilitar.sp.gov.br": {}
+			},
+			"connection": {
+				"timeout": {
+					"peer": {
+						"endorser": "6000",
+						"eventHub": "6000",
+						"eventReg": "6000"
+					}
+				}
+			}
+		}
+	},
+	"organizations": {
+		"ProviderMSP": {
+			"mspid": "ProviderMSP",
+			"fullpath": false,
+			"adminPrivateKey": {
+				"key": "/tmp/crypto/peerOrganizations/provider.policiamilitar.sp.gov.br/users/Admin@provider.policiamilitar.sp.gov.br/msp/keystore/dfad8d8bbdbff819951e7b1a9ecbd7348a1e3bfcb93e77b9f93bbb3324640309_sk"
+			},
+			"certificateAuthorities": [
+				"ca.provider.policiamilitar.sp.gov.br"
+			],
+			"signedCert": {
+				"pem": "-----BEGIN CERTIFICATE-----MIICXjCCAgSgAwIBAgIQRblcOWXh868vksmCTXMD7zAKBggqhkjOPQQDAjCBlTELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWExFjAUBgNVBAcTDVNhbiBGcmFuY2lzY28xKjAoBgNVBAoTIXByb3ZpZGVyLnBvbGljaWFtaWxpdGFyLnNwLmdvdi5icjEtMCsGA1UEAxMkY2EucHJvdmlkZXIucG9saWNpYW1pbGl0YXIuc3AuZ292LmJyMB4XDTE5MTEwODE1MjMwMFoXDTI5MTEwNTE1MjMwMFowfTELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWExFjAUBgNVBAcTDVNhbiBGcmFuY2lzY28xDzANBgNVBAsTBmNsaWVudDEwMC4GA1UEAwwnQWRtaW5AcHJvdmlkZXIucG9saWNpYW1pbGl0YXIuc3AuZ292LmJyMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE/+LSgXN11wBKew/RaCFS1QPfHQCCyTKUiPWHgkP5xNWdlg0LwKsLGp4S+Xq0t4k1IKbfdE6PXAGkEnvso+LaRaNNMEswDgYDVR0PAQH/BAQDAgeAMAwGA1UdEwEB/wQCMAAwKwYDVR0jBCQwIoAgNHSKEptANTf16C3a0ahar0hkgVq8Y5XxteUKwAm8jHowCgYIKoZIzj0EAwIDSAAwRQIhAJIe2IXUOGZo044kdYczOOJVHyLlrKeLqHC/FVotvYVLAiArqkLh3fFjUeYrxppA9Iw/g/vOeqpSBFGIJCrRa8AVhg==-----END CERTIFICATE-----"
+			}
+		},
+		"ConsumerMSP": {
+			"mspid": "ConsumerMSP",
+			"peers": ["peer0.consumer.policiamilitar.sp.gov.br","peer1.consumer.policiamilitar.sp.gov.br"],
+			"adminPrivateKey": {
+				"key": "/tmp/crypto/peerOrganizations/consumer.policiamilitar.sp.gov.br/users/Admin@consumer.policiamilitar.sp.gov.br/msp/keystore/e85a43790b60885af8b24737f94f34deec86094d50703f9f0d740a5ac038c1d5_sk"
+			}
+		},
+		"OrdererMSP": {
+			"mspid": "OrdererMSP",
+			"adminPrivateKey": {
+				"key": "/tmp/crypto/ordererOrganizations/policiamilitar.sp.gov.br/users/Admin@policiamilitar.sp.gov.br/msp/keystore/19944a12dfe8fe61052064045eb40d3c560a5d2d987db6d4066d976543d569ae_sk"
+			}
+		}
+	},
+	"peers": {
+		"peer0.provider.policiamilitar.sp.gov.br": {
+			"tlsCACerts": {
+				"cert": "/tmp/crypto/peerOrganizations/provider.policiamilitar.sp.gov.br/peers/peer0.provider.policiamilitar.sp.gov.br/tls/ca.crt"
+			},
+			"url": "grpcs://peer0.provider.policiamilitar.sp.gov.br:7051",
+			"eventUrl": "grpcs://peer0.provider.policiamilitar.sp.gov.br:7053",
+			"grpcOptions": {
+                "ssl-target-name-override": "peer0.provider.policiamilitar.sp.gov.br",
+                "hostnameOverride": "peer0.provider.policiamilitar.sp.gov.br"
+			}
+			
+		},
+		"peer1.provider.policiamilitar.sp.gov.br": {
+			"url": "grpcs://peer1.provider.policiamilitar.sp.gov.br:8051"
+        },
+        "peer0.consumer.policiamilitar.sp.gov.br": {
+          "url": "grpcs://peer0.consumer.policiamilitar.sp.gov.br:9051"
+        },
+        "peer1.consumer.policiamilitar.sp.gov.br": {
+          "url": "grpcs://peer1.consumer.policiamilitar.sp.gov.br:10051"
+        }
+	},
+	"orderers": {
+		"orderer.policiamilitar.sp.gov.br": {
+			"url": "grpcs://orderer.policiamilitar.sp.gov.br:7050",
+			"grpcOptions": {
+				"ssl-target-name-override": "orderer.policiamilitar.sp.gov.br"
+			  }
+		}
+	},
+    "certificateAuthorities": {
+        "ca.provider.policiamilitar.sp.gov.br": {
+            "url": "https://localhost:7054",
+            "caName": "ca.provider.policiamilitar.sp.gov.br",
+            "tlsCACerts": {
+                "pem": "-----BEGIN CERTIFICATE-----MIIClzCCAj6gAwIBAgIRAM1f6jEDZCWsU4E+TsR4MqwwCgYIKoZIzj0EAwIwgZUxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1TYW4gRnJhbmNpc2NvMSowKAYDVQQKEyFwcm92aWRlci5wb2xpY2lhbWlsaXRhci5zcC5nb3YuYnIxLTArBgNVBAMTJGNhLnByb3ZpZGVyLnBvbGljaWFtaWxpdGFyLnNwLmdvdi5icjAeFw0xOTExMDgxNTIzMDBaFw0yOTExMDUxNTIzMDBaMIGVMQswCQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNU2FuIEZyYW5jaXNjbzEqMCgGA1UEChMhcHJvdmlkZXIucG9saWNpYW1pbGl0YXIuc3AuZ292LmJyMS0wKwYDVQQDEyRjYS5wcm92aWRlci5wb2xpY2lhbWlsaXRhci5zcC5nb3YuYnIwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAARN3/D0BQCJs5ZoB7imFMX3yaKt2CrczHbpy9x6v/ePUL1f43o7nnqyosbNW3At2JaJspX98vGxfnu6StjBrRV3o20wazAOBgNVHQ8BAf8EBAMCAaYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMA8GA1UdEwEB/wQFMAMBAf8wKQYDVR0OBCIEIDR0ihKbQDU39egt2tGoWq9IZIFavGOV8bXlCsAJvIx6MAoGCCqGSM49BAMCA0cAMEQCIH0FKQ+cz+TbloZcDtlf/4ZEjz2BhQpu083gamqb9hvVAiAW9vLLc/tHWv0+X9x2vBez5i7a5IZEM1+FRxX+yY2SxA==-----END CERTIFICATE-----"
+            },
+			"registrar": [
+				{
+					"enrollId": "admin",
+					"enrollSecret": "adminpw"
+				}
+			],
+            "httpOptions": {
+                "verify": false
+            }
+        }
+    }
+}

@@ -1,0 +1,39 @@
+# 
+OrdererOrgs:
+  # ---------------------------------------------------------------------------
+  # Orderer
+  # ---------------------------------------------------------------------------
+  - Name: OrdererMSP
+    Domain: policiamilitar.sp.gov.br    
+    Specs:
+      - Hostname: orderer
+      - Hostname: orderer2
+      - Hostname: orderer3
+        
+# ---------------------------------------------------------------------------
+PeerOrgs:
+  # ---------------------------------------------------------------------------
+  # Provider
+  # ---------------------------------------------------------------------------
+  - Name: ProviderMSP
+    Domain: provider.policiamilitar.sp.gov.br
+    EnableNodeOUs: true
+    
+    Template:
+      Count: 2
+            
+    Users:
+      Count: 1
+  # ---------------------------------------------------------------------------
+  # Consumer
+  # ---------------------------------------------------------------------------
+  - Name: ConsumerMSP
+    Domain: consumer.policiamilitar.sp.gov.br
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+      
+    Users:
+      Count: 1
+  # ---------------------------------------------------------------------------
+ 
