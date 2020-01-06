@@ -2,11 +2,11 @@
  # docker kill $(docker ps -q)
  # docker rm $(docker ps -aq)
  # docker rmi $(docker images dev-* -q)
- # docker rm $(docker ps -aq)
  # docker volume prune
  # docker network inspect network_dpNetwork | jq ".[].Containers[].Name" | sort
  # docker-compose down -v
  # docker exec explorer.mynetwork.com ping -c 1 peer0.org1.example.com 
+ # docker logs peer0.org1.example.com  2>&1 | grep "CouchDB index"
 
 SUBCOMMANDS: 
   TLS: --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
@@ -23,13 +23,15 @@ TOPOLOGY:
 # ../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/ProviderMSPanchors.tx -channelID channeldp -asOrg ProviderMSP
 # ../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/ConsumerMSPanchors.tx -channelID channeldp -asOrg ConsumerMSP
 
+   ../bin/cryptogen generate --config=./crypto-config.yaml
+
   ../bin/configtxgen -profile OrgsOrdererGenesis -channelID channeldp -outputBlock ./channel-artifacts/genesis.block
   ../bin/configtxgen -profile DPOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID channeldp
   ../bin/configtxgen -profile DPOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/ProviderMSPanchors.tx -channelID channeldp -asOrg ProviderMSP
   ../bin/configtxgen -profile DPOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/ConsumerMSPanchors.tx -channelID channeldp -asOrg ConsumerMSP
 
 ##############################################
-2222222222222222222222222222222222222222222222
+2222222222222222222222222222222222222222222222 
 ##############################################
 
 gerarContainers: docker-compose up -d

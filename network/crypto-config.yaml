@@ -7,8 +7,7 @@ OrdererOrgs:
     Domain: policiamilitar.sp.gov.br    
     Specs:
       - Hostname: orderer
-      - Hostname: orderer2
-      - Hostname: orderer3
+      - Hostname: orderer1
         
 # ---------------------------------------------------------------------------
 PeerOrgs:

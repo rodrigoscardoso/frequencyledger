@@ -177,8 +177,8 @@ Orderer: &OrdererDefaults
     OrdererType: kafka
 
     Addresses:
-        #- orderer.policiamilitar.sp.gov.br:7050
          - orderer.policiamilitar.sp.gov.br:7050
+         - orderer1.policiamilitar.sp.gov.br:8050
               
     # Batch Timeout: The amount of time to wait before creating a batch
     BatchTimeout: 2s
@@ -202,9 +202,10 @@ Orderer: &OrdererDefaults
         # Brokers: A list of Kafka brokers to which the orderer connects
         # NOTE: Use IP:port notation
         Brokers:
-            # - kafka.policiamilitar.sp.gov.br:9092
-             - 192.168.1.33:9092
-             
+            - 192.168.1.33:9092
+
+            #- 192.168.1.33:9092
+
     # Organizations is the list of orgs which are defined as participants on
     # the orderer side of the network
     Organizations:
@@ -276,6 +277,7 @@ Profiles:
                 - *ConsumerMSP 
             Capabilities:
                 <<: *ApplicationCapabilities
+    
     OrgsOrdererGenesis:
         <<: *ChannelDefaults
         Capabilities:
@@ -285,7 +287,8 @@ Profiles:
             OrdererType: kafka
             Kafka:
                 Brokers:
-                - 192.168.1.33:9092         
+                    - 192.168.1.33:9092
+
             Organizations:
             - *OrdererMSP
             Capabilities:

@@ -1,0 +1,106 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+services:
+  orderer.policiamilitar.sp.gov.br:
+    container_name: orderer.policiamilitar.sp.gov.br
+    extends:
+      file: orderer-base.yaml
+      service: orderer-base
+    volumes:
+      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ./crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer.policiamilitar.sp.gov.br/tls/:/var/hyperledger/orderer/tls
+    ports:
+      - 7050:7050
+
+  orderer1.policiamilitar.sp.gov.br:
+    container_name: orderer1.policiamilitar.sp.gov.br
+    extends:
+      file: orderer-base.yaml
+      service: orderer-base
+    volumes:
+      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ./crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer1.policiamilitar.sp.gov.br/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/policiamilitar.sp.gov.br/orderers/orderer1.policiamilitar.sp.gov.br/tls/:/var/hyperledger/orderer/tls
+    ports:
+      - 8050:7050
+  
+  zookeeper0.policiamilitar.sp.gov.br:
+    container_name: zookeeper0.policiamilitar.sp.gov.br
+    extends:
+      file: kafka-base.yaml
+      service: zookeeper
+    environment:
+      - ZOO_MY_ID=1
+    ports:
+      - 2181:2181
+
+  zookeeper1.policiamilitar.sp.gov.br:
+    container_name: zookeeper1.policiamilitar.sp.gov.br
+    extends:
+      file: kafka-base.yaml
+      service: zookeeper
+    environment:
+      - ZOO_MY_ID=2
+    ports:
+      - 2888:2181
+
+  zookeeper2.policiamilitar.sp.gov.br:
+    container_name: zookeeper2.policiamilitar.sp.gov.br
+    extends:
+      file: kafka-base.yaml
+      service: zookeeper
+    environment:
+      - ZOO_MY_ID=3
+    ports:
+      - 3888:2181
+
+  kafka0.policiamilitar.sp.gov.br:
+    container_name: kafka0.policiamilitar.sp.gov.br
+    extends:
+      file: kafka-base.yaml
+      service: kafka
+    environment:
+      - KAFKA_BROKER_ID=0
+    ports:
+      - 9092:9092
+      - 9093:9093
+
+  kafka1.policiamilitar.sp.gov.br:
+    container_name: kafka1.policiamilitar.sp.gov.br
+    extends:
+      file: kafka-base.yaml
+      service: kafka
+    environment:
+      - KAFKA_BROKER_ID=1
+    ports:
+      - 10092:9092
+      - 10093:9093
+
+  kafka2.policiamilitar.sp.gov.br:
+    container_name: kafka2.policiamilitar.sp.gov.br
+    extends:
+      file: kafka-base.yaml
+      service: kafka
+    environment:
+      - KAFKA_BROKER_ID=2
+    ports:
+      - 11092:9092
+      - 11093:9093
+
+  kafka3.policiamilitar.sp.gov.br:
+    container_name: kafka3.policiamilitar.sp.gov.br
+    extends:
+      file: kafka-base.yaml
+      service: kafka
+    environment:
+      - KAFKA_BROKER_ID=3
+    ports:
+      - 12092:9092
+      - 12093:9093
+      
